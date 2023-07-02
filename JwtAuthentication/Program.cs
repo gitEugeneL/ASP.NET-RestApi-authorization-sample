@@ -1,9 +1,17 @@
 using JwtAuthentication.Data;
+using JwtAuthentication.Middleware;
+using JwtAuthentication.Repository;
+using JwtAuthentication.Security;
+using JwtAuthentication.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Add services to the container. -------------------------------------------------------------
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
+builder.Services.AddScoped<PasswordHasher>();
+builder.Services.AddScoped<ErrorHandingMiddleware>();
 
 
 // Db connection  ------------------------------------------------------------------------------
@@ -26,6 +34,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ErrorHandingMiddleware>();
 
 app.UseHttpsRedirection();
 

@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 namespace JwtAuthentication.Entities;
 
 public class User
