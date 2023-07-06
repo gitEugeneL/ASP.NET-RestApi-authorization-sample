@@ -29,7 +29,7 @@ public class AuthenticationRepository : IAuthenticationRepository
 
     public User? FindUserByUsername(string username)
     {
-        return _dbContext.Users.FirstOrDefault(user => user.Username == username);
+        return _dbContext.Users.FirstOrDefault(user => user.Username.ToLower() == username.ToLower());
     }
 
     public bool IsUserExist(string username)

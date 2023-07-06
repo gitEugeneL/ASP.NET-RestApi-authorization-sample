@@ -1,9 +1,14 @@
+using System.Text;
 using JwtAuthentication.Data;
 using JwtAuthentication.Middleware;
 using JwtAuthentication.Repository;
 using JwtAuthentication.Security;
 using JwtAuthentication.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,8 +16,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
 builder.Services.AddScoped<PasswordHasher>();
+builder.Services.AddScoped<JwtManager>();
 builder.Services.AddScoped<ErrorHandingMiddleware>();
 
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
 
 // Db connection  ------------------------------------------------------------------------------
 builder.Services.AddDbContext<ApplicationDbContext>(option =>
@@ -21,10 +29,34 @@ builder.Services.AddDbContext<ApplicationDbContext>(option =>
 });
 // ----------------------------------------------------------------------------------------------
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// Swagger Config -------------------------------------------------------------------------------
+builder.Services.AddSwaggerGen(c =>
+{
+    c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+    {
+        Description = """ Standard JWT Bearer Authorization. Example: "bearer" {token} """,
+        In = ParameterLocation.Header,
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey
+    });
+    c.OperationFilter<SecurityRequirementsOperationFilter>();
+});
+
+// JWT config -----------------------------------------------------------------------------------
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8
+                .GetBytes(builder.Configuration.GetSection("Authentication:Key").Value!)),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+        };
+    });
+// ----------------------------------------------------------------------------------------------
 
 var app = builder.Build();
 
@@ -38,6 +70,8 @@ if (app.Environment.IsDevelopment())
 app.UseMiddleware<ErrorHandingMiddleware>();
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

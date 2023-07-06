@@ -22,4 +22,10 @@ public class AuthenticationController : ControllerBase
         return Created($"api/user/{result.Id}", result);
     }
 
+    [HttpPost("login")]
+    public ActionResult Login([FromBody] UserLoginDto dto)
+    {
+        var result = _authenticationService.Login(dto);
+        return Ok(result);
+    }
 }

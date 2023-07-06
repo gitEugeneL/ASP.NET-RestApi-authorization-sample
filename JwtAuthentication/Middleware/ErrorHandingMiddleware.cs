@@ -15,6 +15,11 @@ public class ErrorHandingMiddleware : IMiddleware
             context.Response.StatusCode = 409;
             await context.Response.WriteAsync(exception.Message);
         }
+        catch (NotFoundException exception)
+        {
+            context.Response.StatusCode = 404;
+            await context.Response.WriteAsync(exception.Message);
+        }
         catch (Exception exceptions)
         {
             context.Response.StatusCode = 500;
