@@ -1,4 +1,6 @@
 using JwtAuthentication.Models;
+using JwtAuthentication.Models.Dto;
+using JwtAuthentication.Security;
 using JwtAuthentication.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,12 +11,11 @@ namespace JwtAuthentication.Controllers;
 public class AuthenticationController : ControllerBase
 {
     private readonly IAuthenticationService _authenticationService;
-    
     public AuthenticationController(IAuthenticationService authenticationService)
     {
         _authenticationService = authenticationService;
     }
-    
+
     [HttpPost("register")]
     public ActionResult Registration([FromBody] UserRegistrationDto dto)
     {
@@ -26,6 +27,17 @@ public class AuthenticationController : ControllerBase
     public ActionResult Login([FromBody] UserLoginDto dto)
     {
         var result = _authenticationService.Login(dto);
-        return Ok(result);
+        
+        JwtManager.SetCookies(Response, result.RefreshToken);
+        return Ok(result.JwtToken);
+    }
+    
+    [HttpPost("refresh-token")]
+    public ActionResult RefreshToken()
+    {
+        var result = _authenticationService.RefreshToken(Request.Cookies["refreshToken"]);
+
+        JwtManager.SetCookies(Response, result.RefreshToken);
+        return Ok(result.JwtToken);
     }
 }

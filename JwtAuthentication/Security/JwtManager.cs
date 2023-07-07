@@ -1,13 +1,14 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using JwtAuthentication.Entities;
+using JwtAuthentication.Models;
 using Microsoft.IdentityModel.Tokens;
 
 namespace JwtAuthentication.Security;
 
 public class JwtManager
 {
-    private readonly DateTime _tokenExpires = DateTime.Now.AddMinutes(10);
     private readonly IConfiguration _configuration;
     
     public JwtManager(IConfiguration configuration)
@@ -34,12 +35,33 @@ public class JwtManager
         var tokenDescription = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = _tokenExpires,
+            Expires = DateTime.Now.AddMinutes(
+                int.Parse(_configuration.GetSection("Authentication:TokenLifetimeMin").Value!)),
             SigningCredentials = credentials
         };
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var token = tokenHandler.CreateToken(tokenDescription);
         return tokenHandler.WriteToken(token);
+    }
+
+    public RefreshToken GenerateRefreshToken(User user)
+    {
+        return new RefreshToken
+        {
+            Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)) + user.Id,
+            Expires = DateTime.Now.AddDays(
+                int.Parse(_configuration.GetSection("Authentication:RefreshTokenLifetimeDays").Value!))
+        };
+    }
+    
+    public static void SetCookies(HttpResponse response, RefreshToken refreshToken)
+    {
+        var cookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            Expires = refreshToken.Expires,
+        };
+        response.Cookies.Append("refreshToken", refreshToken.Token, cookieOptions);
     }
 }

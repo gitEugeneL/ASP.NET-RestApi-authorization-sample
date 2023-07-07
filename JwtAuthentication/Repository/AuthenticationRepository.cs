@@ -1,13 +1,16 @@
 using JwtAuthentication.Data;
 using JwtAuthentication.Entities;
+using JwtAuthentication.Models;
 
 namespace JwtAuthentication.Repository;
 
 public interface IAuthenticationRepository
 {
     User? FindUserByUsername(string username);
+    User? FindUserById(int id);
     bool IsUserExist(string username);
     User CreateUser(User user);
+    void UpdateUserRefreshToken(User user, RefreshToken refreshToken);
 }
 
 
@@ -32,8 +35,21 @@ public class AuthenticationRepository : IAuthenticationRepository
         return _dbContext.Users.FirstOrDefault(user => user.Username.ToLower() == username.ToLower());
     }
 
+    public User? FindUserById(int id)
+    {
+        return _dbContext.Users.FirstOrDefault(user => user.Id == id);
+    }
+
     public bool IsUserExist(string username)
     {
         return _dbContext.Users.Any(user => user.Username == username);
+    }
+
+    public void UpdateUserRefreshToken(User user, RefreshToken refreshToken)
+    {
+        user.RefreshToken = refreshToken.Token;
+        user.TokenCreated = refreshToken.Created;
+        user.TokenExpires = refreshToken.Expires;
+        _dbContext.SaveChanges();
     }
 }

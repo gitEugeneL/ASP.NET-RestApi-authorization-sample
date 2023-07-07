@@ -1,14 +1,14 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace JwtAuthentication.Models;
+namespace JwtAuthentication.Models.Dto;
 
-public class UserLoginDto
+public class UserRegistrationDto
 {
-    [Required]
-    [EmailAddress]
+    [Required] 
+    [EmailAddress] 
     public string Username { get; set; } = string.Empty;
-    
-    [Required]
+
+    [Required] 
     [MinLength(8)]
     public string Password { get; set; } = string.Empty;
 }

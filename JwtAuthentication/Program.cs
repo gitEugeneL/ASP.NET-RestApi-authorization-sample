@@ -54,6 +54,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuer = false,
             ValidateAudience = false,
             ValidateLifetime = true,
+            ClockSkew = TimeSpan.FromMinutes(1) // allowed time deviation, 5min - default
         };
     });
 // ----------------------------------------------------------------------------------------------

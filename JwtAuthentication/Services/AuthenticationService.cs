@@ -1,6 +1,7 @@
 using JwtAuthentication.Entities;
 using JwtAuthentication.Exceptions;
 using JwtAuthentication.Models;
+using JwtAuthentication.Models.Dto;
 using JwtAuthentication.Repository;
 using JwtAuthentication.Security;
 
@@ -9,7 +10,8 @@ namespace JwtAuthentication.Services;
 public interface IAuthenticationService
 {
     UserResponseDto Registration(UserRegistrationDto dto);
-    string Login(UserLoginDto dto);
+    Token Login(UserLoginDto dto);
+    Token RefreshToken(string? requestRefreshToken);
 }
 
 public class AuthenticationService : IAuthenticationService
@@ -40,13 +42,38 @@ public class AuthenticationService : IAuthenticationService
         return new UserResponseDto { Id = createdUser.Id, Username = createdUser.Username };
     }
     
-    public string Login(UserLoginDto dto)
+    public Token Login(UserLoginDto dto)
     {
         var user = _authenticationRepository.FindUserByUsername(dto.Username);
         if (user is null || !_passwordHasher.VerifyPasswordHash(dto.Password, user.PwdHash, user.PwdSalt))
             throw new NotFoundException($"User '{dto.Username}' doesn't exist or your password is incorrect");
         
         var token = _jwtManager.CreateToken(user);
-        return token;
+        var refreshToken = _jwtManager.GenerateRefreshToken(user);
+        
+        _authenticationRepository.UpdateUserRefreshToken(user, refreshToken);
+        
+        return new Token { JwtToken = token, RefreshToken = refreshToken };
+    }
+
+    public Token RefreshToken(string? requestRefreshToken)
+    {
+        if (requestRefreshToken is null)
+            throw new UnauthorizedException("Refresh token doesn't exist");
+        
+        var id = int.Parse(requestRefreshToken[^1].ToString());
+        var user = _authenticationRepository.FindUserById(id);
+        
+        if (user is null)
+            throw new UnauthorizedException("This user doesn't exist");
+        if (!user.RefreshToken.Equals(requestRefreshToken))
+            throw new UnauthorizedException("Refresh token isn't valid");
+        if (user.TokenExpires < DateTime.Now)
+            throw new UnauthorizedException("Refresh token is outdated");
+        
+        var token = _jwtManager.CreateToken(user);
+        var refreshToken = _jwtManager.GenerateRefreshToken(user);
+        _authenticationRepository.UpdateUserRefreshToken(user, refreshToken);
+        return new Token { JwtToken = token, RefreshToken = refreshToken };
     }
 }

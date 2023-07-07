@@ -1,4 +1,4 @@
-namespace JwtAuthentication.Models;
+namespace JwtAuthentication.Models.Dto;
 
 public class UserResponseDto
 {
