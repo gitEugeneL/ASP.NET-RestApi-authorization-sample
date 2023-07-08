@@ -11,6 +11,7 @@ public interface IAuthenticationRepository
     bool IsUserExist(string username);
     User CreateUser(User user);
     void UpdateUserRefreshToken(User user, RefreshToken refreshToken);
+    void DeleteRefreshToken(User user);
 }
 
 
@@ -44,12 +45,17 @@ public class AuthenticationRepository : IAuthenticationRepository
     {
         return _dbContext.Users.Any(user => user.Username == username);
     }
-
-    public void UpdateUserRefreshToken(User user, RefreshToken refreshToken)
+    
+    public void UpdateUserRefreshToken(User user, RefreshToken? refreshToken = null)
     {
-        user.RefreshToken = refreshToken.Token;
-        user.TokenCreated = refreshToken.Created;
-        user.TokenExpires = refreshToken.Expires;
+        user.RefreshToken = refreshToken?.Token ?? string.Empty;
+        user.TokenCreated = refreshToken?.Created ?? default;
+        user.TokenExpires = refreshToken?.Expires ?? default;
         _dbContext.SaveChanges();
+    }
+
+    public void DeleteRefreshToken(User user)
+    {
+        UpdateUserRefreshToken(user);
     }
 }

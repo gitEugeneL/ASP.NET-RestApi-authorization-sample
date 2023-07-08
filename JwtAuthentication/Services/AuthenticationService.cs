@@ -12,6 +12,7 @@ public interface IAuthenticationService
     UserResponseDto Registration(UserRegistrationDto dto);
     Token Login(UserLoginDto dto);
     Token RefreshToken(string? requestRefreshToken);
+    void Logout(string? requestRefreshToken);
 }
 
 public class AuthenticationService : IAuthenticationService
@@ -58,11 +59,28 @@ public class AuthenticationService : IAuthenticationService
 
     public Token RefreshToken(string? requestRefreshToken)
     {
+        var validUser = ValidateRefreshToken(requestRefreshToken);   
+        var token = _jwtManager.CreateToken(validUser);
+        var refreshToken = _jwtManager.GenerateRefreshToken(validUser);
+        _authenticationRepository.UpdateUserRefreshToken(validUser, refreshToken);
+        return new Token { JwtToken = token, RefreshToken = refreshToken };
+    }
+
+    public void Logout(string? requestRefreshToken)
+    {
+        var validUser = ValidateRefreshToken(requestRefreshToken);
+        _authenticationRepository.DeleteRefreshToken(validUser);
+    }
+
+
+    private User ValidateRefreshToken(string? requestRefreshToken)
+    {
         if (requestRefreshToken is null)
             throw new UnauthorizedException("Refresh token doesn't exist");
         
-        int id = int.TryParse(requestRefreshToken[(requestRefreshToken.LastIndexOf('W') + 1)..], out int result) ? result : -1;
-
+        int id = int.TryParse(requestRefreshToken[(requestRefreshToken.LastIndexOf('W') + 1)..], out int result) 
+            ? result : -1;
+        
         if (id is -1)
             throw new UnauthorizedException("This user doesn't exist");
         
@@ -75,9 +93,6 @@ public class AuthenticationService : IAuthenticationService
         if (user.TokenExpires < DateTime.Now)
             throw new UnauthorizedException("Refresh token is outdated");
         
-        var token = _jwtManager.CreateToken(user);
-        var refreshToken = _jwtManager.GenerateRefreshToken(user);
-        _authenticationRepository.UpdateUserRefreshToken(user, refreshToken);
-        return new Token { JwtToken = token, RefreshToken = refreshToken };
+        return user;
     }
 }

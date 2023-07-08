@@ -40,4 +40,11 @@ public class AuthenticationController : ControllerBase
         JwtManager.SetCookies(Response, result.RefreshToken);
         return Ok(result.JwtToken);
     }
+
+    [HttpPost("logout")]
+    public ActionResult Logout()
+    {
+        _authenticationService.Logout(Request.Cookies["refreshToken"]);
+        return Ok();
+    }
 }
