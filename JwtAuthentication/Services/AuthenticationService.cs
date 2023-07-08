@@ -61,7 +61,11 @@ public class AuthenticationService : IAuthenticationService
         if (requestRefreshToken is null)
             throw new UnauthorizedException("Refresh token doesn't exist");
         
-        var id = int.Parse(requestRefreshToken[^1].ToString());
+        int id = int.TryParse(requestRefreshToken[(requestRefreshToken.LastIndexOf('W') + 1)..], out int result) ? result : -1;
+
+        if (id is -1)
+            throw new UnauthorizedException("This user doesn't exist");
+        
         var user = _authenticationRepository.FindUserById(id);
         
         if (user is null)

@@ -49,7 +49,7 @@ public class JwtManager
     {
         return new RefreshToken
         {
-            Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)) + user.Id,
+            Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(256)) + "W" + user.Id,
             Expires = DateTime.Now.AddDays(
                 int.Parse(_configuration.GetSection("Authentication:RefreshTokenLifetimeDays").Value!))
         };
