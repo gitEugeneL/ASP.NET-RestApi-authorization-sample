@@ -9,8 +9,8 @@ namespace JwtAuthentication.Services;
 
 public interface IAuthenticationService
 {
-    UserResponseDto Registration(UserRegistrationDto dto);
-    Token Login(UserLoginDto dto);
+    Task<UserResponseDto> Registration(UserRegistrationDto dto);
+    Task<Token> Login(UserLoginDto dto);
     Token RefreshToken(string? requestRefreshToken);
     void Logout(string? requestRefreshToken);
 }
@@ -23,36 +23,35 @@ public class AuthenticationService : IAuthenticationService
 
     public AuthenticationService(IAuthenticationRepository authenticationRepository, PasswordHasher passwordHasher,
         JwtManager jwtManager)
-
     {
         _authenticationRepository = authenticationRepository;
         _passwordHasher = passwordHasher;
         _jwtManager = jwtManager;
     }
 
-    public UserResponseDto Registration(UserRegistrationDto dto)
+    public async Task<UserResponseDto> Registration(UserRegistrationDto dto)
     {
-        if (_authenticationRepository.IsUserExist(dto.Username))
+        if (await _authenticationRepository.IsUserExist(dto.Username))
             throw new AlreadyExistException($"User: {dto.Username} already exist");
 
         _passwordHasher.CreatePasswordHash(dto.Password, out byte[] pswHash, out byte[] pswSalt);
 
-        var createdUser = _authenticationRepository.CreateUser(
-            new User { Username = dto.Username, Role = Role.User, PwdHash = pswHash, PwdSalt = pswSalt }
+        var createdUser = await _authenticationRepository.CreateUser(
+            new User { Username = dto.Username, RoleId = 1, PwdHash = pswHash, PwdSalt = pswSalt }
         );
         return new UserResponseDto { Id = createdUser.Id, Username = createdUser.Username };
     }
     
-    public Token Login(UserLoginDto dto)
+    public async Task<Token> Login(UserLoginDto dto)
     {
-        var user = _authenticationRepository.FindUserByUsername(dto.Username);
+        var user = await _authenticationRepository.FindUserByUsername(dto.Username);
         if (user is null || !_passwordHasher.VerifyPasswordHash(dto.Password, user.PwdHash, user.PwdSalt))
             throw new NotFoundException($"User '{dto.Username}' doesn't exist or your password is incorrect");
         
         var token = _jwtManager.CreateToken(user);
         var refreshToken = _jwtManager.GenerateRefreshToken(user);
         
-        _authenticationRepository.UpdateUserRefreshToken(user, refreshToken);
+        await _authenticationRepository.UpdateUserRefreshToken(user, refreshToken);
         
         return new Token { JwtToken = token, RefreshToken = refreshToken };
     }

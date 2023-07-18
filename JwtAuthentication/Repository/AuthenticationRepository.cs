@@ -1,17 +1,18 @@
 using JwtAuthentication.Data;
 using JwtAuthentication.Entities;
 using JwtAuthentication.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace JwtAuthentication.Repository;
 
 public interface IAuthenticationRepository
 {
-    User? FindUserByUsername(string username);
+    Task<User?> FindUserByUsername(string username);
     User? FindUserById(int id);
-    bool IsUserExist(string username);
-    User CreateUser(User user);
-    void UpdateUserRefreshToken(User user, RefreshToken refreshToken);
-    void DeleteRefreshToken(User user);
+    Task<bool> IsUserExist(string username);
+    Task<User> CreateUser(User user);
+    Task UpdateUserRefreshToken(User user, RefreshToken refreshToken);
+    Task DeleteRefreshToken(User user);
 }
 
 
@@ -24,16 +25,16 @@ public class AuthenticationRepository : IAuthenticationRepository
         _dbContext = dbContext;
     }
 
-    public User CreateUser(User user)
+    public async Task<User> CreateUser(User user)
     {
-        _dbContext.Users.Add(user);
-        _dbContext.SaveChanges();
+        await _dbContext.Users.AddAsync(user);
+        await _dbContext.SaveChangesAsync();
         return user;
     }
 
-    public User? FindUserByUsername(string username)
+    public async Task<User?> FindUserByUsername(string username)
     {
-        return _dbContext.Users.FirstOrDefault(user => user.Username.ToLower() == username.ToLower());
+        return await _dbContext.Users.FirstOrDefaultAsync(user => user.Username.ToLower() == username.ToLower());
     }
 
     public User? FindUserById(int id)
@@ -41,21 +42,21 @@ public class AuthenticationRepository : IAuthenticationRepository
         return _dbContext.Users.FirstOrDefault(user => user.Id == id);
     }
 
-    public bool IsUserExist(string username)
+    public async Task<bool> IsUserExist(string username)
     {
-        return _dbContext.Users.Any(user => user.Username == username);
+        return await _dbContext.Users.AnyAsync(user => user.Username == username);
     }
     
-    public void UpdateUserRefreshToken(User user, RefreshToken? refreshToken = null)
+    public async Task UpdateUserRefreshToken(User user, RefreshToken? refreshToken = null)
     {
         user.RefreshToken = refreshToken?.Token ?? string.Empty;
         user.TokenCreated = refreshToken?.Created ?? default;
         user.TokenExpires = refreshToken?.Expires ?? default;
-        _dbContext.SaveChanges();
+        await _dbContext.SaveChangesAsync();
     }
 
-    public void DeleteRefreshToken(User user)
+    public async Task DeleteRefreshToken(User user)
     {
-        UpdateUserRefreshToken(user);
+        await UpdateUserRefreshToken(user);
     }
 }

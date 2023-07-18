@@ -1,4 +1,3 @@
-using JwtAuthentication.Models;
 using JwtAuthentication.Models.Dto;
 using JwtAuthentication.Security;
 using JwtAuthentication.Services;
@@ -17,16 +16,16 @@ public class AuthenticationController : ControllerBase
     }
 
     [HttpPost("register")]
-    public ActionResult Registration([FromBody] UserRegistrationDto dto)
+    public async Task<ActionResult> Registration([FromBody] UserRegistrationDto dto)
     {
-        var result = _authenticationService.Registration(dto);
+        var result = await _authenticationService.Registration(dto);
         return Created($"api/user/{result.Id}", result);
     }
 
     [HttpPost("login")]
-    public ActionResult Login([FromBody] UserLoginDto dto)
+    public async Task<ActionResult> Login([FromBody] UserLoginDto dto)
     {
-        var result = _authenticationService.Login(dto);
+        var result = await _authenticationService.Login(dto);
         
         JwtManager.SetCookies(Response, result.RefreshToken);
         return Ok(result.JwtToken);
