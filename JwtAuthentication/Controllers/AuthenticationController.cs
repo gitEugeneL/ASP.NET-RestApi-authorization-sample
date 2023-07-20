@@ -32,9 +32,9 @@ public class AuthenticationController : ControllerBase
     }
     
     [HttpPost("refresh-token")]
-    public ActionResult RefreshToken()
+    public async Task<ActionResult> RefreshToken()
     {
-        var result = _authenticationService.RefreshToken(Request.Cookies["refreshToken"]);
+        var result = await _authenticationService.RefreshToken(Request.Cookies["refreshToken"]);
 
         JwtManager.SetCookies(Response, result.RefreshToken);
         return Ok(result.JwtToken);

@@ -8,7 +8,7 @@ namespace JwtAuthentication.Repository;
 public interface IAuthenticationRepository
 {
     Task<User?> FindUserByUsername(string username);
-    User? FindUserById(int id);
+    Task<User?> FindUserById(int id);
     Task<bool> IsUserExist(string username);
     Task<User> CreateUser(User user);
     Task UpdateUserRefreshToken(User user, RefreshToken refreshToken);
@@ -34,12 +34,18 @@ public class AuthenticationRepository : IAuthenticationRepository
 
     public async Task<User?> FindUserByUsername(string username)
     {
-        return await _dbContext.Users.FirstOrDefaultAsync(user => user.Username.ToLower() == username.ToLower());
+        return await _dbContext
+            .Users
+            .Include(u => u.Role)
+            .FirstOrDefaultAsync(user => user.Username.ToLower() == username.ToLower());
     }
 
-    public User? FindUserById(int id)
+    public async Task<User?> FindUserById(int id)
     {
-        return _dbContext.Users.FirstOrDefault(user => user.Id == id);
+        return await _dbContext
+            .Users
+            .Include(u => u.Role)
+            .FirstOrDefaultAsync(user => user.Id == id);
     }
 
     public async Task<bool> IsUserExist(string username)

@@ -4,6 +4,7 @@ using JwtAuthentication.Models;
 using JwtAuthentication.Models.Dto;
 using JwtAuthentication.Repository;
 using JwtAuthentication.Security;
+using Microsoft.AspNetCore.Authorization;
 
 namespace JwtAuthentication.Services;
 
@@ -11,8 +12,8 @@ public interface IAuthenticationService
 {
     Task<UserResponseDto> Registration(UserRegistrationDto dto);
     Task<Token> Login(UserLoginDto dto);
-    Token RefreshToken(string? requestRefreshToken);
-    void Logout(string? requestRefreshToken);
+    Task<Token> RefreshToken(string? requestRefreshToken);
+    Task Logout(string? requestRefreshToken);
 }
 
 public class AuthenticationService : IAuthenticationService
@@ -55,24 +56,27 @@ public class AuthenticationService : IAuthenticationService
         
         return new Token { JwtToken = token, RefreshToken = refreshToken };
     }
-
-    public Token RefreshToken(string? requestRefreshToken)
+    
+    public async Task<Token> RefreshToken(string? requestRefreshToken)
     {
-        var validUser = ValidateRefreshToken(requestRefreshToken);   
+        var validUser = await ValidateRefreshToken(requestRefreshToken);   
+        
+        Console.WriteLine(validUser.Role);
+        
         var token = _jwtManager.CreateToken(validUser);
         var refreshToken = _jwtManager.GenerateRefreshToken(validUser);
-        _authenticationRepository.UpdateUserRefreshToken(validUser, refreshToken);
+        await _authenticationRepository.UpdateUserRefreshToken(validUser, refreshToken);
         return new Token { JwtToken = token, RefreshToken = refreshToken };
     }
 
-    public void Logout(string? requestRefreshToken)
+    [Authorize]
+    public async Task Logout(string? requestRefreshToken)
     {
-        var validUser = ValidateRefreshToken(requestRefreshToken);
-        _authenticationRepository.DeleteRefreshToken(validUser);
+        var validUser = await ValidateRefreshToken(requestRefreshToken);
+        await _authenticationRepository.DeleteRefreshToken(validUser);
     }
-
-
-    private User ValidateRefreshToken(string? requestRefreshToken)
+    
+    private async Task<User> ValidateRefreshToken(string? requestRefreshToken)
     {
         if (requestRefreshToken is null)
             throw new UnauthorizedException("Refresh token doesn't exist");
@@ -83,7 +87,7 @@ public class AuthenticationService : IAuthenticationService
         if (id is -1)
             throw new UnauthorizedException("This user doesn't exist");
         
-        var user = _authenticationRepository.FindUserById(id);
+        var user = await _authenticationRepository.FindUserById(id);
         
         if (user is null)
             throw new UnauthorizedException("This user doesn't exist");
