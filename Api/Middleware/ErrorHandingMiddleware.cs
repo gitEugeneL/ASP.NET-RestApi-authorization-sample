@@ -1,6 +1,6 @@
 using Application.Common.Exceptions;
 
-namespace sample.Middleware;
+namespace Api.Middleware;
 
 public class ErrorHandingMiddleware : IMiddleware
 {
@@ -10,24 +10,19 @@ public class ErrorHandingMiddleware : IMiddleware
         {
             await next.Invoke(context);
         }
-        catch (AlreadyExistException exception)
+        catch (AccessDeniedException exception)
         {
-            context.Response.StatusCode = 409;
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
             await context.Response.WriteAsync(exception.Message);
         }
-        // catch (NotFoundException exception)
-        // {
-        //     context.Response.StatusCode = 404;
-        //     await context.Response.WriteAsync(exception.Message);
-        // }
-        // catch (UnauthorizedException exception)
-        // {
-        //     context.Response.StatusCode = 401;
-        //     await context.Response.WriteAsync(exception.Message);
-        // }
-        catch (Exception exceptions)
+        catch (AlreadyExistException exception)
         {
-            context.Response.StatusCode = 500;
+            context.Response.StatusCode = StatusCodes.Status409Conflict;
+            await context.Response.WriteAsync(exception.Message);
+        }
+        catch (Exception)
+        {
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
             await context.Response.WriteAsync("Something went wrong");
         }
     }

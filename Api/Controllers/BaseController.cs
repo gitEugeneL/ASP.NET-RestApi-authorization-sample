@@ -2,7 +2,7 @@ using System.Security.Claims;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace sample.Controllers;
+namespace Api.Controllers;
 
 [ApiController]
 public class BaseController : ControllerBase

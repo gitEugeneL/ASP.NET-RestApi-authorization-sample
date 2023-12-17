@@ -16,7 +16,8 @@ public static class ConfigureServices
         services
             .AddScoped<IRoleRepository, RoleRepository>()
             .AddScoped<IUserRepository, UserRepository>()
-            .AddScoped<IPasswordManager, PasswordManager>();
+            .AddScoped<IPasswordManager, PasswordManager>()
+            .AddScoped<ITokenManager, TokenManager>();
         
         var connection = configuration.GetConnectionString("SQLServer")!;
         services.AddDbContext<DataContext>(option => 

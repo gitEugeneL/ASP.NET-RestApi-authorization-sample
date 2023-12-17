@@ -1,8 +1,12 @@
+using Api.Utils;
+using Application.Common.Models;
+using Application.Operations.Auth;
+using Application.Operations.Auth.Commands.Login;
 using Application.Operations.Auth.Commands.Register;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace sample.Controllers;
+namespace Api.Controllers;
 
 [Route("api/auth")]
 public class AuthenticationController : BaseController
@@ -15,5 +19,15 @@ public class AuthenticationController : BaseController
     {
         var result = await Mediator.Send(command);
         return Created(result.ToString(), result);
+    }
+
+    [HttpPost("login")]
+    [ProducesResponseType(typeof(JwtToken), StatusCodes.Status200OK)]
+    public async Task<ActionResult<AuthenticationResponse>> Login([FromBody] LoginCommand command)
+    {
+        var result = await Mediator.Send(command);
+        CookieManager
+            .SetCookie(Response, "refreshToken", result.CookieToken.Token, result.CookieToken.Expires);
+        return Ok(result.JwtToken);
     }
 }

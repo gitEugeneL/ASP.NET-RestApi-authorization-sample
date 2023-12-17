@@ -23,9 +23,17 @@ public class UserRepository : IUserRepository
         return user;
     }
 
-    public Task<User?> FindUserByEmailAsync(string email, CancellationToken cancellationToken)
+    public async Task<User?> FindUserByEmailAsync(string email, CancellationToken cancellationToken)
     {
-        return _dataContext.Users
+        return await _dataContext.Users
+            .Include(user => user.Role)
+            .Include(user => user.RefreshTokens)
             .FirstOrDefaultAsync(user => user.Email == email, cancellationToken);
+    }
+
+    public async Task UpdateUserAsync(User user, CancellationToken cancellationToken)
+    {
+        _dataContext.Users.Update(user);
+        await _dataContext.SaveChangesAsync(cancellationToken);
     }
 }

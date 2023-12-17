@@ -7,4 +7,6 @@ public interface IUserRepository
     Task<User> CreateUserAsync(User user, CancellationToken cancellationToken);
 
     Task<User?> FindUserByEmailAsync(string email, CancellationToken cancellationToken);
+
+    Task UpdateUserAsync(User user, CancellationToken cancellationToken);
 }

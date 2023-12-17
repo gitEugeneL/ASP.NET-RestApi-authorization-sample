@@ -1,7 +1,7 @@
+using Api;
+using Api.Middleware;
 using Application;
 using Infrastructure;
-using sample;
-using sample.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
