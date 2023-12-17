@@ -1,7 +1,7 @@
 using Api.Utils;
 using Application.Common.Models;
-using Application.Operations.Auth;
 using Application.Operations.Auth.Commands.Login;
+using Application.Operations.Auth.Commands.Refresh;
 using Application.Operations.Auth.Commands.Register;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -23,9 +23,23 @@ public class AuthenticationController : BaseController
 
     [HttpPost("login")]
     [ProducesResponseType(typeof(JwtToken), StatusCodes.Status200OK)]
-    public async Task<ActionResult<AuthenticationResponse>> Login([FromBody] LoginCommand command)
+    public async Task<ActionResult<JwtToken>> Login([FromBody] LoginCommand command)
     {
         var result = await Mediator.Send(command);
+        CookieManager
+            .SetCookie(Response, "refreshToken", result.CookieToken.Token, result.CookieToken.Expires);
+        return Ok(result.JwtToken);
+    }
+
+    [HttpPost("refresh")]
+
+    public async Task<ActionResult<JwtToken>> Refresh()
+    {
+        var userRefreshToken = Request.Cookies["refreshToken"];
+        if (userRefreshToken is null)
+            return BadRequest();
+        
+        var result = await Mediator.Send(new RefreshCommand(userRefreshToken));
         CookieManager
             .SetCookie(Response, "refreshToken", result.CookieToken.Token, result.CookieToken.Expires);
         return Ok(result.JwtToken);

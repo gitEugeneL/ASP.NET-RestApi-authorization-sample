@@ -31,6 +31,15 @@ public class UserRepository : IUserRepository
             .FirstOrDefaultAsync(user => user.Email == email, cancellationToken);
     }
 
+    public async Task<User?> FindUserByRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken)
+    {
+        return await _dataContext.Users
+            .Include(user => user.Role)
+            .Include(user => user.RefreshTokens)
+            .FirstOrDefaultAsync(user => user.RefreshTokens
+                    .Any(rt => rt.Token == refreshToken), cancellationToken);
+    }
+    
     public async Task UpdateUserAsync(User user, CancellationToken cancellationToken)
     {
         _dataContext.Users.Update(user);

@@ -12,7 +12,6 @@
 
     <ItemGroup>
       <Folder Include="Operations\Auth\Commands\Logout\" />
-      <Folder Include="Operations\Auth\Commands\Refresh\" />
     </ItemGroup>
 
     <ItemGroup>
