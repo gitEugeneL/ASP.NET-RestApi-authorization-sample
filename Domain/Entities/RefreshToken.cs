@@ -2,7 +2,7 @@ using Domain.Common;
 
 namespace Domain.Entities;
 
-public sealed class RefreshToken : BaseAuditableEntity
+public sealed class RefreshToken : BaseEntity
 {
     public required string Token { get; set; }
     public required DateTime Expires { get; set; }

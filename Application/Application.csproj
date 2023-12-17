@@ -10,4 +10,14 @@
       <ProjectReference Include="..\Domain\Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Operations\Auth\Commands\Login\" />
+      <Folder Include="Operations\Auth\Commands\Logout\" />
+      <Folder Include="Operations\Auth\Commands\Refresh\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="MediatR" Version="12.2.0" />
+    </ItemGroup>
+
 </Project>
