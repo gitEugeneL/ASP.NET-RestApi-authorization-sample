@@ -23,6 +23,9 @@ public static class ConfigureServices
         services.AddDbContext<DataContext>(option => 
             option.UseSqlServer(connection));
      
+        DataContextInitializer
+            .Init(services.BuildServiceProvider().GetRequiredService<DataContext>());
+        
         return services;
     }
 }

@@ -12,6 +12,30 @@ services:
       - "1433:1433"  
     volumes:
       - database-volume:/var/opt/mssql:rw
+    networks:
+      - auth-sample-network
 
+  app:
+    container_name: app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "8080:80"
+    depends_on:
+      - database
+    networks:
+      - auth-sample-network
+    deploy:
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+        
+networks:
+  auth-sample-network:
+    driver: bridge
+    
 volumes:
   database-volume:
