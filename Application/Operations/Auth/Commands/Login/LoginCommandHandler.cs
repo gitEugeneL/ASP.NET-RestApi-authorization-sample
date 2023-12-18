@@ -25,7 +25,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthenticationR
     {
         var user = await _userRepository.FindUserByEmailAsync(request.Email, cancellationToken);
         
-        if (user is null || !_passwordManager.VerifyPasswordHash(request.Passsword, user.PasswordHash, user.PasswordSalt))
+        if (user is null || !_passwordManager.VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
             throw new AccessDeniedException(nameof(User), request.Email);
         
         if (user.RefreshTokens.Count >= RefreshTokensCount)

@@ -10,5 +10,5 @@ public record LoginCommand : IRequest<AuthenticationResponse>
     public required string Email { get; init; }
 
     [Required] 
-    public required string Passsword { get; init; }
+    public required string Password { get; init; }
 }
