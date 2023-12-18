@@ -1,4 +1,5 @@
 using Application.Common.Exceptions;
+using Microsoft.Data.SqlClient.DataClassification;
 
 namespace Api.Middleware;
 
@@ -18,6 +19,11 @@ public class ErrorHandingMiddleware : IMiddleware
         catch (AlreadyExistException exception)
         {
             context.Response.StatusCode = StatusCodes.Status409Conflict;
+            await context.Response.WriteAsync(exception.Message);
+        }
+        catch (UnauthorizedException exception)
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
             await context.Response.WriteAsync(exception.Message);
         }
         catch (Exception)

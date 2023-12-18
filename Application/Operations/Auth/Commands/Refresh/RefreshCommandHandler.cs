@@ -26,7 +26,6 @@ public class RefreshCommandHandler : IRequestHandler<RefreshCommand, Authenticat
                    ?? throw new UnauthorizedException("Refresh token isn't valid");
         
         _refreshTokenService.ValidateAndRemoveRefreshToken(user, request.RefreshToken);
-
         
         var accessToken = _tokenManager.GenerateAccessToken(user);
         var refreshToken = _tokenManager.GenerateRefreshToken(user);

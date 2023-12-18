@@ -15,7 +15,6 @@ var app = builder.Build();
 
 app.UseMiddleware<ErrorHandingMiddleware>();
 
-
 app.UseSwagger();
 app.UseSwaggerUI();
 
