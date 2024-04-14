@@ -1,5 +1,4 @@
 using Application.Common.Exceptions;
-using Microsoft.Data.SqlClient.DataClassification;
 
 namespace Api.Middleware;
 

@@ -9,9 +9,9 @@ public class DataContext : DbContext
 {
     public DataContext(DbContextOptions<DataContext> options) : base(options) { }
 
-    public required DbSet<User> Users { get; set; }
-    public required DbSet<Role> Roles { get; set; }
-    public required DbSet<RefreshToken> RefreshTokens { get; set; }
+    public required DbSet<User> Users { get; init; }
+    public required DbSet<Role> Roles { get; init; }
+    public required DbSet<RefreshToken> RefreshTokens { get; init; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     { 

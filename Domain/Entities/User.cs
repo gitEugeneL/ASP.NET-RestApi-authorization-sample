@@ -4,13 +4,13 @@ namespace Domain.Entities;
 
 public sealed class User : BaseAuditableEntity
 {
-    public required string Email { get; set; }
-    public required byte[] PasswordHash { get; set; }
-    public required byte[] PasswordSalt { get; set; }
+    public required string Email { get; init; }
+    public required byte[] PasswordHash { get; init; }
+    public required byte[] PasswordSalt { get; init; }
     
     /**** Relations ****/
-    public required Role Role { get; set; }
-    public Guid RoleId { get; set; }
+    public required Role Role { get; init; }
+    public Guid RoleId { get; init; }
 
-    public List<RefreshToken> RefreshTokens { get; set; } = new();
+    public List<RefreshToken> RefreshTokens { get; init; } = new();
 }
