@@ -1,7 +1,8 @@
 using Api;
-using Api.Middleware;
+using Api.Utils;
 using Application;
 using Infrastructure;
+using Carter;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,23 +10,18 @@ builder.Services.AddPresentationServices(builder.Configuration);
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
-builder.Services.AddScoped<ErrorHandingMiddleware>();
+builder.Services.AddScoped<ExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 var app = builder.Build();
-
-app.UseMiddleware<ErrorHandingMiddleware>();
 
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseCors();
-
 app.UseHttpsRedirection();
 
-app.UseAuthentication();
+app.MapCarter();
 
-app.UseAuthorization();
-
-app.MapControllers();
+app.UseExceptionHandler();
 
 app.Run();

@@ -1,4 +1,7 @@
+using System.Security.Claims;
 using System.Text;
+using Api.Helpers;
+using Carter;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -11,8 +14,9 @@ public static class ConfigureServices
     public static IServiceCollection AddPresentationServices(this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddControllers();
-
+        /*** Caret registration ***/
+        services.AddCarter();
+        
         /*** Auth config ***/
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
@@ -29,10 +33,17 @@ public static class ConfigureServices
                 };
             });
 
+        /*** Auth policies ***/
+        services.AddAuthorizationBuilder()
+            .AddPolicy(AppConstants.BaseAuthPolicy, policy =>
+                policy
+                    .RequireClaim(ClaimTypes.Email)
+                    .RequireClaim(ClaimTypes.NameIdentifier));
+        
         /*** Swagger config ***/
         services.AddSwaggerGen(c =>
         {
-            c.AddSecurityDefinition("oauth2 ROLE_USER", new OpenApiSecurityScheme
+            c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
             {
                 Description =
                     """ Standard JWT Bearer Authorization with refresh token. Example: "Bearer" {your token} """,
@@ -43,7 +54,6 @@ public static class ConfigureServices
             c.OperationFilter<SecurityRequirementsOperationFilter>();
         });
 
-        services.AddCors();
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
 
