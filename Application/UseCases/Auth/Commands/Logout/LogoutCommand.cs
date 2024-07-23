@@ -1,5 +1,5 @@
 using MediatR;
 
-namespace Application.Operations.Auth.Commands.Logout;
+namespace Application.UseCases.Auth.Commands.Logout;
 
 public record LogoutCommand(string RefreshToken) : IRequest<Unit>;

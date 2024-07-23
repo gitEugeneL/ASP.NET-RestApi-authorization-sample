@@ -8,5 +8,5 @@ public sealed class Role : BaseEntity
     public required RoleName Value { get; init; }
 
     /**** Relations ****/
-    public List<User> Users { get; init; } = new();
+    public List<User> Users { get; init; } = [];
 }

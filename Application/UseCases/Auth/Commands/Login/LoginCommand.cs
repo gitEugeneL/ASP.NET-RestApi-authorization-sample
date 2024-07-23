@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using MediatR;
 
-namespace Application.Operations.Auth.Commands.Login;
+namespace Application.UseCases.Auth.Commands.Login;
 
 public record LoginCommand : IRequest<AuthenticationResponse>
 {

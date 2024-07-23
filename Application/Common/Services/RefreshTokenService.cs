@@ -8,7 +8,7 @@ internal class RefreshTokenService : IRefreshTokenService
 {
     public void ValidateAndRemoveRefreshToken(User user, string oldRefreshToken)
     {
-        // find this token in the user
+        // find this token in the user's list
         var userRefreshToken = user.RefreshTokens
             .First(rt => rt.Token == oldRefreshToken);
         

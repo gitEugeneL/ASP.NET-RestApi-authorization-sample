@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using MediatR;
 
-namespace Application.Operations.Auth.Commands.Register;
+namespace Application.UseCases.Auth.Commands.Register;
 
 public record RegisterCommand : IRequest<Guid>
 {

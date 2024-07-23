@@ -5,27 +5,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories;
 
-public class UserRepository : IUserRepository
+public class UserRepository(DataContext dataContext) : IUserRepository
 {
-    private readonly DataContext _dataContext;
-    
-    public UserRepository(DataContext dataContext)
-    {
-        _dataContext = dataContext;
-    }
-    
     public async Task<User> CreateUserAsync(User user, CancellationToken cancellationToken)
     {
-        await _dataContext.Users
+        await dataContext.Users
             .AddAsync(user, cancellationToken);
-        await _dataContext
+        await dataContext
             .SaveChangesAsync(cancellationToken);
         return user;
     }
 
     public async Task<User?> FindUserByEmailAsync(string email, CancellationToken cancellationToken)
     {
-        return await _dataContext.Users
+        return await dataContext.Users
             .Include(user => user.Role)
             .Include(user => user.RefreshTokens)
             .FirstOrDefaultAsync(user => user.Email == email, cancellationToken);
@@ -33,7 +26,7 @@ public class UserRepository : IUserRepository
 
     public async Task<User?> FindUserByRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken)
     {
-        return await _dataContext.Users
+        return await dataContext.Users
             .Include(user => user.Role)
             .Include(user => user.RefreshTokens)
             .FirstOrDefaultAsync(user => user.RefreshTokens
@@ -42,7 +35,7 @@ public class UserRepository : IUserRepository
     
     public async Task UpdateUserAsync(User user, CancellationToken cancellationToken)
     {
-        _dataContext.Users.Update(user);
-        await _dataContext.SaveChangesAsync(cancellationToken);
+        dataContext.Users.Update(user);
+        await dataContext.SaveChangesAsync(cancellationToken);
     }
 }

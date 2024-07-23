@@ -1,6 +1,6 @@
 using Application.Common.Models;
 
-namespace Application.Operations.Auth;
+namespace Application.UseCases.Auth;
 
 public record AuthenticationResponse(
     JwtToken JwtToken,

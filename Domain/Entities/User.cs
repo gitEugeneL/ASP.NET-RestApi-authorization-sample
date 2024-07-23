@@ -12,5 +12,5 @@ public sealed class User : BaseAuditableEntity
     public required Role Role { get; init; }
     public Guid RoleId { get; init; }
 
-    public List<RefreshToken> RefreshTokens { get; init; } = new();
+    public List<RefreshToken> RefreshTokens { get; init; } = [];
 }

@@ -15,16 +15,12 @@ internal class UserConfiguration : IEntityTypeConfiguration<User>
             .IsRequired()
             .HasMaxLength(250);
         
-        builder.Property(user => user.Created)
-            .IsRequired()
-            .HasDefaultValueSql("CURRENT_TIMESTAMP");
-        
-        /*** Many to one relation ***/
+        /*** Many-to-one relation ***/
         builder.HasMany(user => user.RefreshTokens)
             .WithOne(refreshToken => refreshToken.User)
             .HasForeignKey(refreshToken => refreshToken.UserId); 
         
-        /*** One to many relation ***/
+        /*** One-to-many relation ***/
         builder.HasOne(user => user.Role)
             .WithMany(role => role.Users)
             .HasForeignKey(user => user.RoleId);

@@ -5,10 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence;
 
-public class DataContext : DbContext
+public class DataContext(DbContextOptions<DataContext> options) : DbContext(options)
 {
-    public DataContext(DbContextOptions<DataContext> options) : base(options) { }
-
     public required DbSet<User> Users { get; init; }
     public required DbSet<Role> Roles { get; init; }
     public required DbSet<RefreshToken> RefreshTokens { get; init; }

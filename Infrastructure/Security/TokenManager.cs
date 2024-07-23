@@ -8,15 +8,8 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Infrastructure.Security;
 
-public sealed class TokenManager : ITokenManager
+public sealed class TokenManager(IConfiguration configuration) : ITokenManager
 {
-    private readonly IConfiguration _configuration;
-
-    public TokenManager(IConfiguration configuration)
-    {
-        _configuration = configuration;
-    }
-
     public string GenerateAccessToken(User user)
     {
         var claims = new List<Claim>
@@ -26,7 +19,7 @@ public sealed class TokenManager : ITokenManager
             new(ClaimTypes.Role, user.Role.Value.ToString())
         };
 
-        var settings = _configuration.GetSection("Authentication:Key").Value!;
+        var settings = configuration.GetSection("Authentication:Key").Value!;
         
         var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(settings));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
@@ -35,7 +28,7 @@ public sealed class TokenManager : ITokenManager
         {
             Subject = new ClaimsIdentity(claims),
             Expires = DateTime.UtcNow.AddMinutes(
-                int.Parse(_configuration.GetSection("Authentication:TokenLifetimeMin").Value!)),
+                int.Parse(configuration.GetSection("Authentication:TokenLifetimeMin").Value!)),
             SigningCredentials = credentials
         };
         var handler = new JwtSecurityTokenHandler();
@@ -50,7 +43,7 @@ public sealed class TokenManager : ITokenManager
         {
             Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(256)),
             Expires = DateTime.UtcNow.AddDays(
-                int.Parse(_configuration.GetSection("Authentication:RefreshTokenLifetimeDays").Value!)),
+                int.Parse(configuration.GetSection("Authentication:RefreshTokenLifetimeDays").Value!)),
             User = user
         };
     }
