@@ -1,6 +1,6 @@
 # ASP.NET-RestApi-authorization-sample
 
-Authorization sample for Rest Api on ASP.NET 7.
+Authorization sample for Rest Api on ASP.NET 8.
 
 The project implements a clean architecture, CQRS pattern, Repository pattern.
 
@@ -10,8 +10,8 @@ The refresh token is recorded in the database and allows each user to have 5 act
 
 ## Main technologies
 
-* [ASP.NET Core 7](https://learn.microsoft.com/en-us/aspnet/core/introduction-to-aspnet-core?view=aspnetcore-7.0)
-* [Entity Framework Core 7](https://learn.microsoft.com/en-us/ef/core/)
+* [ASP.NET Core 8](https://learn.microsoft.com/en-us/aspnet/core/introduction-to-aspnet-core?view=aspnetcore-7.0)
+* [Entity Framework Core 8](https://learn.microsoft.com/en-us/ef/core/)
 * [MediatR](https://github.com/jbogard/MediatR)
 * [SQL-Server 2022](https://www.microsoft.com/pl-pl/sql-server/sql-server-2022)
 * [Docker](https://www.docker.com/)

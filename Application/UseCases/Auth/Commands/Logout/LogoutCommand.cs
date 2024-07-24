@@ -2,4 +2,4 @@ using MediatR;
 
 namespace Application.UseCases.Auth.Commands.Logout;
 
-public record LogoutCommand(string RefreshToken) : IRequest<Unit>;
+public sealed record LogoutCommand(string RefreshToken) : IRequest<Unit>;

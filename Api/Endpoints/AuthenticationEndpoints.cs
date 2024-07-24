@@ -1,5 +1,6 @@
 using Api.Helpers;
 using Api.Utils;
+using API.Utils;
 using Application.Common.Exceptions;
 using Application.Common.Models;
 using Application.UseCases.Auth.Commands.Login;
@@ -19,10 +20,12 @@ public class AuthenticationEndpoints : ICarterModule
             .WithTags("Authentication");
 
         group.MapPost("register", Register)
+            .WithValidator<RegisterCommand>()
             .Produces<Guid>(StatusCodes.Status201Created)
             .Produces(StatusCodes.Status409Conflict);
         
         group.MapPost("login", Login)
+            .WithValidator<LoginCommand>()
             .Produces<JwtToken>()
             .Produces(StatusCodes.Status400BadRequest);
         
@@ -35,7 +38,7 @@ public class AuthenticationEndpoints : ICarterModule
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status400BadRequest);
     }
-
+    
     private async Task<Results<Created<Guid>, Conflict<string>>> Register(RegisterCommand command, ISender sender)
     {
         try
